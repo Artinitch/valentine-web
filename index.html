@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Romantic Quiz 💖</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #ffe6eb, #ffccd5, #ffd6e0);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-align: center;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: #ff4d6d;
+            font-size: 2.8em;
+            margin-top: 80px;
+            text-shadow: 2px 2px 5px #fff;
+            animation: bounce 1.5s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .quiz-container, .valentine-container {
+            margin-top: 40px;
+        }
+
+        button {
+            background-color: #ff85a1;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.3em;
+            border-radius: 15px;
+            margin: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.5);
+        }
+
+        button:hover {
+            background-color: #ff4d6d;
+            transform: scale(1.15) rotate(-2deg);
+        }
+
+        #message {
+            margin-top: 30px;
+            font-size: 1.8em;
+            color: #ff4d6d;
+            text-shadow: 1px 1px 5px #fff;
+        }
+
+        .sparkle {
+            position: absolute;
+            color: #fff;
+            font-size: 15px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ff4d6d;
+            pointer-events: none;
+            opacity: 0.8;
+            border-radius: 50%;
+        }
+
+        .heart-float {
+            position: absolute;
+            font-size: 25px;
+            opacity: 0.9;
+            pointer-events: none;
+            user-select: none;
+            animation: floatUp 2s forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 0.9; }
+            100% { transform: translateY(-150px) scale(1.3); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Take the Romantic Quiz 💖</h1>
+
+    <div class="quiz-container" id="quizContainer">
+        <p id="question"></p>
+        <button id="yesBtn">Yes 💖</button>
+        <button id="noBtn">No 💔</button>
+        <div id="message"></div>
+    </div>
+
+    <div class="valentine-container" id="valentineContainer" style="display:none;">
+        <h1>Will you be my Valentine? 💌</h1>
+        <div class="buttons">
+            <button id="valYesBtn">Yes 💖</button>
+            <button id="valNoBtn">No 💔</button>
+        </div>
+        <div id="valMessage"></div>
+    </div>
+
+    <!-- Sound for Yes click -->
+    <audio id="loveSound" src="https://freesound.org/data/previews/535/535210_5121236-lq.mp3"></audio>
+
+    <script>
+        // Questions array with types and options
+        const questions = [
+            { text: "Do you like chocolates? 🍫", type: "yesno" },
+            { text: "Is a sunset more romantic than sunrise? 🌅", type: "yesno" },
+            { text: "Do you believe in love at first sight? 💘", type: "yesno" },
+            { text: "Roses or chocolate? 🌹🍫", type: "multiple", options: ["Roses 🌹", "Chocolate 🍫"] },
+            { text: "Do you enjoy little surprises? 🎁", type: "yesno" }
+        ];
+
+        const quizContainer = document.getElementById('quizContainer');
+        const questionEl = document.getElementById('question');
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const messageDiv = document.getElementById('message');
+
+        const valentineContainer = document.getElementById('valentineContainer');
+        const valYesBtn = document.getElementById('valYesBtn');
+        const valNoBtn = document.getElementById('valNoBtn');
+        const valMessage = document.getElementById('valMessage');
+        const loveSound = document.getElementById('loveSound');
+
+        let currentQuestion = 0;
+
+        // Show the current question
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            messageDiv.innerText = "";
+
+            if (q.type === "yesno") {
+                questionEl.innerText = q.text;
+                yesBtn.style.display = "inline-block";
+                noBtn.style.display = "inline-block";
+                yesBtn.innerText = "Yes 💖";
+                noBtn.innerText = "No 💔";
+            } else if (q.type === "multiple") {
+                questionEl.innerText = q.text;
+                yesBtn.style.display = "inline-block";
+                noBtn.style.display = "inline-block";
+                yesBtn.innerText = q.options[0];
+                noBtn.innerText = q.options[1];
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                // Quiz finished, show Valentine container
+                quizContainer.style.display = "none";
+                valentineContainer.style.display = "block";
+            }
+        }
+
+        // Quiz button handlers
+        yesBtn.addEventListener('click', () => {
+            const q = questions[currentQuestion];
+            if(q.type === "yesno") {
+                messageDiv.innerHTML = "Aww! 💖 You chose Yes!";
+            } else {
+                messageDiv.innerHTML = `You chose ${q.options[0]}! 😍`;
+            }
+            showHearts();
+            nextQuestion();
+        });
+
+        noBtn.addEventListener('click', () => {
+            const q = questions[currentQuestion];
+            if(q.type === "yesno") {
+                messageDiv.innerHTML = "Hmm 😅 maybe next time!";
+            } else {
+                messageDiv.innerHTML = `You chose ${q.options[1]}! 🍫`;
+            }
+            showHearts();
+            nextQuestion();
+        });
+
+        // Floating hearts function
+        function showHearts() {
+            for (let i = 0; i < 10; i++) {
+                const heart = document.createElement('div');
+                heart.textContent = '💖';
+                heart.className = 'heart-float';
+                heart.style.left = Math.random() * window.innerWidth + 'px';
+                heart.style.fontSize = (20 + Math.random() * 30) + 'px';
+                document.body.appendChild(heart);
+
+                setTimeout(() => heart.remove(), 2000);
+            }
+        }
+
+        // VALENTINE BUTTONS
+        valYesBtn.addEventListener('click', function() {
+            valMessage.innerHTML = "Yay! You made my day! 💕";
+            showHearts();
+            showConfetti();
+            loveSound.play();
+        });
+
+        valNoBtn.addEventListener('mouseover', function() {
+            const x = Math.random() * (window.innerWidth - valNoBtn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - valNoBtn.offsetHeight);
+            valNoBtn.style.position = 'absolute';
+            valNoBtn.style.left = x + 'px';
+            valNoBtn.style.top = y + 'px';
+        });
+
+        valNoBtn.addEventListener('click', function() {
+            valMessage.innerHTML = "Haha! You can't click me! 😏";
+        });
+
+        // Confetti effect
+        function showConfetti() {
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.top = Math.random() * window.innerHeight + 'px';
+                confetti.style.backgroundColor = ['#ff4d6d','#ff85a1','#ffccdd','#fff'][Math.floor(Math.random()*4)];
+                document.body.appendChild(confetti);
+
+                let top = parseFloat(confetti.style.top);
+                const interval = setInterval(() => {
+                    top += 2 + Math.random()*3;
+                    confetti.style.top = top + 'px';
+                    if (top > window.innerHeight) {
+                        clearInterval(interval);
+                        confetti.remove();
+                    }
+                }, 20);
+            }
+        }
+
+        // Sparkles in background
+        setInterval(() => {
+            const sparkle = document.createElement('div');
+            sparkle.textContent = '✨';
+            sparkle.className = 'sparkle';
+            sparkle.style.left = Math.random() * window.innerWidth + 'px';
+            sparkle.style.top = Math.random() * window.innerHeight + 'px';
+            sparkle.style.fontSize = (5 + Math.random() * 15) + 'px';
+            sparkle.style.opacity = 0.7;
+            document.body.appendChild(sparkle);
+
+            let top = parseFloat(sparkle.style.top);
+            const interval = setInterval(() => {
+                top -= 0.5;
+                sparkle.style.top = top + 'px';
+                sparkle.style.opacity -= 0.005;
+                if (top < -20) {
+                    clearInterval(interval);
+                    sparkle.remove();
+                }
+            }, 20);
+        }, 300);
+
+        // Start quiz
+        showQuestion();
+    </script>
+    <div id="signature">💌 Created by Issa</div>
+
+
+</body>
+</html>
