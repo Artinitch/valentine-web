@@ -87,6 +87,27 @@
             0% { transform: translateY(0) scale(1); opacity: 0.9; }
             100% { transform: translateY(-150px) scale(1.3); opacity: 0; }
         }
+
+        #signature {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 1em;
+            color: #ff4d6d;
+            text-shadow: 1px 1px 2px #fff;
+            pointer-events: none;
+        }
+
+        #signature::after {
+            content: " 💖";
+            animation: floatHeart 2s infinite;
+        }
+
+        @keyframes floatHeart {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
     </style>
 </head>
 <body>
@@ -106,13 +127,20 @@
             <button id="valNoBtn">No 💔</button>
         </div>
         <div id="valMessage"></div>
+
+        <!-- Hidden form to send results -->
+        <form id="feedbackForm" action="https://formspree.io/f/mjgonded" method="POST" style="margin-top:40px;">
+            <input type="hidden" name="subject" value="Valentine Quiz Responses 💖">
+            <textarea id="answers" name="answers" rows="5" readonly style="width:80%; border-radius:10px; padding:10px; font-size:1em; display:none;"></textarea>
+            <button type="submit" id="sendBtn" style="padding:10px 20px; border-radius:10px; display:none;">Send My Answers 💌</button>
+        </form>
     </div>
 
-    <!-- Sound for Yes click -->
+    <div id="signature">Created by Issa</div>
+
     <audio id="loveSound" src="https://freesound.org/data/previews/535/535210_5121236-lq.mp3"></audio>
 
     <script>
-        // Questions array with types and options
         const questions = [
             { text: "Do you like chocolates? 🍫", type: "yesno" },
             { text: "Is a sunset more romantic than sunrise? 🌅", type: "yesno" },
@@ -132,24 +160,22 @@
         const valNoBtn = document.getElementById('valNoBtn');
         const valMessage = document.getElementById('valMessage');
         const loveSound = document.getElementById('loveSound');
+        const answersField = document.getElementById('answers');
+        const sendBtn = document.getElementById('sendBtn');
 
         let currentQuestion = 0;
+        const userAnswers = [];
 
-        // Show the current question
         function showQuestion() {
             const q = questions[currentQuestion];
             messageDiv.innerText = "";
 
             if (q.type === "yesno") {
                 questionEl.innerText = q.text;
-                yesBtn.style.display = "inline-block";
-                noBtn.style.display = "inline-block";
                 yesBtn.innerText = "Yes 💖";
                 noBtn.innerText = "No 💔";
-            } else if (q.type === "multiple") {
+            } else {
                 questionEl.innerText = q.text;
-                yesBtn.style.display = "inline-block";
-                noBtn.style.display = "inline-block";
                 yesBtn.innerText = q.options[0];
                 noBtn.innerText = q.options[1];
             }
@@ -160,36 +186,51 @@
             if (currentQuestion < questions.length) {
                 showQuestion();
             } else {
-                // Quiz finished, show Valentine container
                 quizContainer.style.display = "none";
                 valentineContainer.style.display = "block";
+                answersField.value = userAnswers.join("\n");
+                answersField.style.display = "block";
+                sendBtn.style.display = "inline-block";
             }
         }
 
-        // Quiz button handlers
         yesBtn.addEventListener('click', () => {
             const q = questions[currentQuestion];
-            if(q.type === "yesno") {
-                messageDiv.innerHTML = "Aww! 💖 You chose Yes!";
-            } else {
-                messageDiv.innerHTML = `You chose ${q.options[0]}! 😍`;
-            }
+            const answer = q.type === "yesno" ? "Yes 💖" : q.options[0];
+            userAnswers.push(`${q.text} → ${answer}`);
+            messageDiv.innerHTML = `You chose ${answer}! 😍`;
             showHearts();
             nextQuestion();
         });
 
         noBtn.addEventListener('click', () => {
             const q = questions[currentQuestion];
-            if(q.type === "yesno") {
-                messageDiv.innerHTML = "Hmm 😅 maybe next time!";
-            } else {
-                messageDiv.innerHTML = `You chose ${q.options[1]}! 🍫`;
-            }
+            const answer = q.type === "yesno" ? "No 💔" : q.options[1];
+            userAnswers.push(`${q.text} → ${answer}`);
+            messageDiv.innerHTML = `You chose ${answer}! 😅`;
             showHearts();
             nextQuestion();
         });
 
-        // Floating hearts function
+        valYesBtn.addEventListener('click', () => {
+            valMessage.innerHTML = "Yay! You made my day! 💕";
+            showHearts();
+            showConfetti();
+            loveSound.play();
+        });
+
+        valNoBtn.addEventListener('mouseover', () => {
+            const x = Math.random() * (window.innerWidth - valNoBtn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - valNoBtn.offsetHeight);
+            valNoBtn.style.position = 'absolute';
+            valNoBtn.style.left = x + 'px';
+            valNoBtn.style.top = y + 'px';
+        });
+
+        valNoBtn.addEventListener('click', () => {
+            valMessage.innerHTML = "Haha! You can't click me! 😏";
+        });
+
         function showHearts() {
             for (let i = 0; i < 10; i++) {
                 const heart = document.createElement('div');
@@ -198,32 +239,10 @@
                 heart.style.left = Math.random() * window.innerWidth + 'px';
                 heart.style.fontSize = (20 + Math.random() * 30) + 'px';
                 document.body.appendChild(heart);
-
                 setTimeout(() => heart.remove(), 2000);
             }
         }
 
-        // VALENTINE BUTTONS
-        valYesBtn.addEventListener('click', function() {
-            valMessage.innerHTML = "Yay! You made my day! 💕";
-            showHearts();
-            showConfetti();
-            loveSound.play();
-        });
-
-        valNoBtn.addEventListener('mouseover', function() {
-            const x = Math.random() * (window.innerWidth - valNoBtn.offsetWidth);
-            const y = Math.random() * (window.innerHeight - valNoBtn.offsetHeight);
-            valNoBtn.style.position = 'absolute';
-            valNoBtn.style.left = x + 'px';
-            valNoBtn.style.top = y + 'px';
-        });
-
-        valNoBtn.addEventListener('click', function() {
-            valMessage.innerHTML = "Haha! You can't click me! 😏";
-        });
-
-        // Confetti effect
         function showConfetti() {
             for (let i = 0; i < 30; i++) {
                 const confetti = document.createElement('div');
@@ -245,7 +264,6 @@
             }
         }
 
-        // Sparkles in background
         setInterval(() => {
             const sparkle = document.createElement('div');
             sparkle.textContent = '✨';
@@ -268,11 +286,7 @@
             }, 20);
         }, 300);
 
-        // Start quiz
         showQuestion();
     </script>
-    <div id="signature">💌 Created by Issa</div>
-
-
 </body>
 </html>
